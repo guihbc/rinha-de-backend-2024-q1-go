@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -10,12 +9,10 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func init() {
-	database.Connect()
-}
-
 func main() {
-	listen := fmt.Sprintf(":%s", os.Getenv("HTTP_PORT"))
+	database.Connect()
+
+	listen := os.Getenv("LISTEN_HTTP_PORT")
 	log.Printf("Listening on %s", listen)
 	log.Fatal(fasthttp.ListenAndServe(listen, http.GetRouter().Handler))
 }
