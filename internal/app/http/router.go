@@ -5,7 +5,7 @@ import (
 	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/http/controller"
 )
 
-func GetRouter() *router.Router {
+func getRouter() *router.Router {
 	r := router.New()
 	r.POST("/clientes/{id}/transacoes", controller.ClientTrasactionController)
 	r.GET("/clientes/{id}/extrato", controller.ClientExtractController)
