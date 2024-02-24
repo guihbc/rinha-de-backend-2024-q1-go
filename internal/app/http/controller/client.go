@@ -12,11 +12,31 @@ import (
 
 func ClientTrasactionController(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("application/json")
-	var req request.ClientTransactionRequest
-	err := json.Unmarshal(ctx.Request.Body(), &req)
+
+	id := ctx.UserValue("id").(string)
+	_, err := strconv.Atoi(id)
 
 	if err != nil {
-		ctx.WriteString("Error")
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		errorResponse := response.NewErrorResponse("o id deve ser um inteiro")
+		ctx.SetBody(response.GetBytes(errorResponse))
+		return
+	}
+
+	var req request.ClientTransactionRequest
+	err = json.Unmarshal(ctx.Request.Body(), &req)
+
+	if err != nil {
+		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		errorResponse := response.NewErrorResponse("Failed to parse request body")
+		ctx.SetBody(response.GetBytes(errorResponse))
+		return
+	}
+
+	if err = req.ValidateFields(); err != nil {
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		errorResponse := response.NewErrorResponse(err.Error())
+		ctx.SetBody(response.GetBytes(errorResponse))
 		return
 	}
 
@@ -30,19 +50,15 @@ func ClientTrasactionController(ctx *fasthttp.RequestCtx) {
 }
 
 func ClientExtractController(ctx *fasthttp.RequestCtx) {
-	id := ctx.UserValue("id").(string)
 	ctx.SetContentType("application/json")
+	id := ctx.UserValue("id").(string)
 
 	_, err := strconv.Atoi(id)
 
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-
-		b, _ := json.Marshal(response.ErrorResponse{
-			Message: "o id deve ser um inteiro",
-		})
-
-		ctx.SetBody(b)
+		errorResponse := response.NewErrorResponse("o id deve ser um inteiro")
+		ctx.SetBody(response.GetBytes(errorResponse))
 		return
 	}
 
