@@ -40,6 +40,8 @@ BEGIN
 END;
 $$;
 
+CREATE INDEX idx_saldos_valor ON saldos (valor);
+
 -- CREATE OR REPLACE FUNCTION debitar(
 -- 	cliente_id_tx INT,
 -- 	valor_tx INT,

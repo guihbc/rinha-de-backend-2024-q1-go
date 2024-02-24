@@ -3,6 +3,8 @@ package request
 import (
 	"errors"
 	"strings"
+
+	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app"
 )
 
 type ClientTransactionRequest struct {
@@ -12,11 +14,11 @@ type ClientTransactionRequest struct {
 }
 
 func (c *ClientTransactionRequest) ValidateFields() error {
-	if strings.TrimSpace(c.Type) == "" || (c.Type != "c" && c.Type != "d") {
+	if strings.TrimSpace(c.Type) == "" || (c.Type != app.CREDIT && c.Type != app.DEBIT) {
 		return errors.New("o tipo de transacao deve ser c ou d")
 	}
 
-	if strings.TrimSpace(c.Type) == "" || len(c.Description) > 10 || len(c.Description) < 1 {
+	if strings.TrimSpace(c.Description) == "" || len(c.Description) > 10 || len(c.Description) < 1 {
 		return errors.New("a descricao deve ter no mínimo 1 caracter e no maximo 10")
 	}
 
