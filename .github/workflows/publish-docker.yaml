@@ -2,6 +2,13 @@ name: Publish Docker image to Docker Hub
 
 on:
   push:
+    paths-ignore:
+      - 'scripts/***'
+      - 'tests/***'
+      - '.gitignore'
+      - 'docker-compose-dev.yaml'
+      - 'docker-compose.yaml'
+      - 'README.md'
     branches:
       - main
 
