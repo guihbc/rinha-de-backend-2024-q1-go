@@ -2,8 +2,11 @@ package repository
 
 import (
 	"context"
+	"log"
+	"time"
 
 	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/database"
+	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/http/model/response"
 )
 
 func ClientExists(id string) (bool, error) {
@@ -61,4 +64,58 @@ func CreditBalance(value int64, id string) (*TransactionEntity, error) {
 	}
 
 	return newTransactionEntity(limit, balance), nil
+}
+
+func ClientExtract(id string) (*response.ClientExtractResponse, error) {
+	rows, err := database.GetConn().Query(context.Background(), transactionExtractQuery, id)
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	extractResponse := &response.ClientExtractResponse{
+		Balance: &response.ExtractBalance{
+			Date: time.Now(),
+		},
+		LastTransactions: []*response.ExtractTransaction{},
+	}
+
+	for rows.Next() {
+		var extractDate, transactionDate time.Time
+		var total, limit, transactionValue int64
+		var transactionType, transactionDescription string
+		err := rows.Scan(&total, &extractDate, &limit, &transactionValue, &transactionType, &transactionDescription, &transactionDate)
+
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		brazilianZone := time.FixedZone("America/Sao_Paulo", -3*60*60)
+
+		extractResponse.Balance.Total = total
+		extractResponse.Balance.Date = extractDate.In(brazilianZone)
+		extractResponse.Balance.Limit = limit
+
+		transaction := &response.ExtractTransaction{
+			Value:       transactionValue,
+			Type:        transactionType,
+			Description: transactionDescription,
+			Date:        transactionDate.In(brazilianZone),
+		}
+
+		extractResponse.LastTransactions = append(extractResponse.LastTransactions, transaction)
+	}
+
+	err = rows.Err()
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return extractResponse, nil
 }

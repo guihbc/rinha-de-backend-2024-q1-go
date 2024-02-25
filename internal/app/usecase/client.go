@@ -67,3 +67,13 @@ func TransactionUseCase(id string, req request.ClientTransactionRequest) (*respo
 		return nil, nil
 	}
 }
+
+func ClientExtractUseCase(id string) (*response.ClientExtractResponse, error) {
+	response, err := repository.ClientExtract(id)
+
+	if err != nil {
+		return nil, errors.New("failed to get client transaction extract")
+	}
+
+	return response, nil
+}

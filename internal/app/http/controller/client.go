@@ -5,7 +5,6 @@ import (
 	"errors"
 	"log"
 	"strconv"
-	"time"
 
 	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/http/model/request"
 	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/http/model/response"
@@ -84,15 +83,16 @@ func ClientExtractController(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	res := response.ClientExtractResponse{
-		Balance: &response.ExtractBalance{
-			Date: time.Now(),
-		},
-		LastTransactions: []*response.ExtractTransaction{},
+	res, err := usecase.ClientExtractUseCase(id)
+
+	if err != nil {
+		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		errorResponse := response.NewErrorResponse(err.Error())
+		log.Println(errorResponse.Message)
+		ctx.SetBody(response.GetBytes(errorResponse))
+		return
 	}
 
 	ctx.SetStatusCode(fasthttp.StatusOK)
-
-	b, _ := json.Marshal(res)
-	ctx.Response.SetBody(b)
+	ctx.Response.SetBody(response.GetBytes(res))
 }

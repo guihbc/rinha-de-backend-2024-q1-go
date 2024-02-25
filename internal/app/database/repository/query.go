@@ -19,3 +19,24 @@ const creditQuery = `
 	AND s.cliente_id = $3
 	RETURNING c.limite, s.valor;
 `
+const transactionExtractQuery = `
+SELECT
+    s.valor AS total,
+    NOW() AS data_extrato,
+    c.limite AS limite,
+    t.valor AS valor_transacao,
+    t.tipo AS tipo_transacao,
+    t.descricao AS descricao_transacao,
+    t.realizada_em AS data_transacao
+FROM
+    saldos AS s
+JOIN
+    clientes AS c ON s.cliente_id = c.id
+LEFT JOIN
+    transacoes AS t ON t.cliente_id = c.id
+WHERE
+    s.cliente_id = $1
+ORDER BY
+    t.realizada_em DESC
+LIMIT 10;
+`
