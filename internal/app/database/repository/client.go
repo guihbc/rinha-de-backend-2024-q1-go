@@ -84,9 +84,9 @@ func ClientExtract(id string) (*response.ClientExtractResponse, error) {
 	}
 
 	for rows.Next() {
-		var extractDate, transactionDate time.Time
-		var total, limit, transactionValue int64
-		var transactionType, transactionDescription string
+		var extractDate, transactionDate *time.Time
+		var total, limit, transactionValue *int64
+		var transactionType, transactionDescription *string
 		err := rows.Scan(&total, &extractDate, &limit, &transactionValue, &transactionType, &transactionDescription, &transactionDate)
 
 		if err != nil {
@@ -96,18 +96,33 @@ func ClientExtract(id string) (*response.ClientExtractResponse, error) {
 
 		brazilianZone := time.FixedZone("America/Sao_Paulo", -3*60*60)
 
-		extractResponse.Balance.Total = total
+		extractResponse.Balance.Total = *total
 		extractResponse.Balance.Date = extractDate.In(brazilianZone)
-		extractResponse.Balance.Limit = limit
+		extractResponse.Balance.Limit = *limit
 
-		transaction := &response.ExtractTransaction{
-			Value:       transactionValue,
-			Type:        transactionType,
-			Description: transactionDescription,
-			Date:        transactionDate.In(brazilianZone),
+		var brazilianTransactionDate time.Time
+		var t, description string
+		var value int64
+
+		var transaction *response.ExtractTransaction
+
+		if transactionDate == nil && transactionDescription == nil && transactionValue == nil && transactionType == nil {
+			transaction = nil
+		} else {
+			brazilianTransactionDate = transactionDate.In(brazilianZone)
+			description = *transactionDescription
+			value = *transactionValue
+			t = *transactionType
+
+			transaction = &response.ExtractTransaction{
+				Value:       value,
+				Type:        t,
+				Description: description,
+				Date:        brazilianTransactionDate,
+			}
+
+			extractResponse.LastTransactions = append(extractResponse.LastTransactions, transaction)
 		}
-
-		extractResponse.LastTransactions = append(extractResponse.LastTransactions, transaction)
 	}
 
 	err = rows.Err()

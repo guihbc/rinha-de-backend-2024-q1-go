@@ -14,7 +14,7 @@ services:
       resources:
         limits:
           cpus: "0.6"
-          memory: "200MB"
+          memory: "150MB"
 
   api2:
     <<: *api
@@ -40,14 +40,7 @@ services:
       resources:
         limits:
           cpus: "0.17"
-          memory: "10MB"
-
-  adminer:
-    image: adminer
-    network_mode: host
-    depends_on:
-      - database
-    restart: always
+          memory: "30MB"
 
   database:
     image: postgres:latest
@@ -65,4 +58,4 @@ services:
       resources:
         limits:
           cpus: "0.13"
-          memory: "140MB"
+          memory: "220MB"
