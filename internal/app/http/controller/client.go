@@ -39,7 +39,7 @@ func ClientTrasactionController(ctx *fasthttp.RequestCtx) {
 	}
 
 	if err = req.ValidateFields(); err != nil {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetStatusCode(fasthttp.StatusUnprocessableEntity)
 		errorResponse := response.NewErrorResponse(err.Error())
 		log.Println(errorResponse.Message)
 		ctx.SetBody(response.GetBytes(errorResponse))
