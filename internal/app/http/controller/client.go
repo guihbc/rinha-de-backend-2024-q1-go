@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"strconv"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/http/model/request"
 	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/http/model/response"
 	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/usecase"
+	"github.com/jackc/pgx/v5"
 	"github.com/valyala/fasthttp"
 )
 
@@ -53,8 +55,12 @@ func ClientTrasactionController(ctx *fasthttp.RequestCtx) {
 		log.Println(errorResponse.Message)
 		ctx.SetBody(response.GetBytes(errorResponse))
 
-		if err.Error() == "client not found" {
+		if errors.Is(err, usecase.ErrClientNotFound) {
 			ctx.SetStatusCode(fasthttp.StatusNotFound)
+		}
+
+		if errors.Is(err, pgx.ErrNoRows) {
+			ctx.SetStatusCode(fasthttp.StatusUnprocessableEntity)
 		}
 
 		return

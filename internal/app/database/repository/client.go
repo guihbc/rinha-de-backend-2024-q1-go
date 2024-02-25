@@ -50,3 +50,15 @@ func InsertTransaction(id, description, tipo string, value int64) error {
 
 	return nil
 }
+
+func CreditBalance(value int64, id string) (*TransactionEntity, error) {
+	var limit, balance int64
+
+	err := database.GetConn().QueryRow(context.Background(), creditQuery, value, id, id).Scan(&limit, &balance)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return newTransactionEntity(limit, balance), nil
+}
