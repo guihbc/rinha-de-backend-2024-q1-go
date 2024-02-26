@@ -5,13 +5,13 @@ import (
 	"log"
 	"time"
 
-	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/database"
 	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/http/model/response"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func ClientExists(id string) (bool, error) {
+func ClientExists(id string, conn *pgxpool.Pool) (bool, error) {
 	var clientExists bool
-	err := database.GetConn().QueryRow(context.Background(), clientExistsQuery, id).Scan(&clientExists)
+	err := conn.QueryRow(context.Background(), clientExistsQuery, id).Scan(&clientExists)
 
 	if err != nil {
 		return false, err
@@ -32,10 +32,10 @@ func newTransactionEntity(limit, balance int64) *TransactionEntity {
 	}
 }
 
-func DebitBalance(value int64, id string) (*TransactionEntity, error) {
+func DebitBalance(value int64, id string, conn *pgxpool.Pool) (*TransactionEntity, error) {
 	var limit, balance int64
 
-	err := database.GetConn().QueryRow(context.Background(), debitQuery, value, id, id, value).Scan(&limit, &balance)
+	err := conn.QueryRow(context.Background(), debitQuery, value, id, id, value).Scan(&limit, &balance)
 
 	if err != nil {
 		return nil, err
@@ -44,8 +44,8 @@ func DebitBalance(value int64, id string) (*TransactionEntity, error) {
 	return newTransactionEntity(limit, balance), nil
 }
 
-func InsertTransaction(id, description, tipo string, value int64) error {
-	_, err := database.GetConn().Exec(context.Background(), insertTransactionQuery, value, tipo, description, id)
+func InsertTransaction(id, description, tipo string, value int64, conn *pgxpool.Pool) error {
+	_, err := conn.Exec(context.Background(), insertTransactionQuery, value, tipo, description, id)
 
 	if err != nil {
 		return err
@@ -54,10 +54,10 @@ func InsertTransaction(id, description, tipo string, value int64) error {
 	return nil
 }
 
-func CreditBalance(value int64, id string) (*TransactionEntity, error) {
+func CreditBalance(value int64, id string, conn *pgxpool.Pool) (*TransactionEntity, error) {
 	var limit, balance int64
 
-	err := database.GetConn().QueryRow(context.Background(), creditQuery, value, id, id).Scan(&limit, &balance)
+	err := conn.QueryRow(context.Background(), creditQuery, value, id, id).Scan(&limit, &balance)
 
 	if err != nil {
 		return nil, err
@@ -66,8 +66,8 @@ func CreditBalance(value int64, id string) (*TransactionEntity, error) {
 	return newTransactionEntity(limit, balance), nil
 }
 
-func ClientExtract(id string) (*response.ClientExtractResponse, error) {
-	rows, err := database.GetConn().Query(context.Background(), transactionExtractQuery, id)
+func ClientExtract(id string, conn *pgxpool.Pool) (*response.ClientExtractResponse, error) {
+	rows, err := conn.Query(context.Background(), transactionExtractQuery, id)
 
 	if err != nil {
 		log.Println(err)

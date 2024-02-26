@@ -14,7 +14,7 @@ services:
       resources:
         limits:
           cpus: "0.6"
-          memory: "200MB"
+          memory: "100MB"
 
   api2:
     <<: *api
@@ -40,7 +40,7 @@ services:
       resources:
         limits:
           cpus: "0.17"
-          memory: "10MB"
+          memory: "30MB"
 
   adminer:
     image: adminer
@@ -65,4 +65,4 @@ services:
       resources:
         limits:
           cpus: "0.13"
-          memory: "140MB"
+          memory: "320MB"

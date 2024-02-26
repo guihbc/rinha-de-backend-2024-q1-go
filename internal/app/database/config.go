@@ -16,11 +16,11 @@ func config() *pgxpool.Config {
 		log.Fatalln("Failed to parse pool config")
 	}
 
-	databaseConfig.MaxConns = int32(64)
+	databaseConfig.MaxConns = int32(100)
 	databaseConfig.MinConns = int32(5)
 	databaseConfig.MaxConnLifetime = time.Hour
-	databaseConfig.MaxConnIdleTime = time.Minute * 5
-	databaseConfig.HealthCheckPeriod = time.Minute
+	databaseConfig.MaxConnIdleTime = time.Minute
+	databaseConfig.HealthCheckPeriod = time.Second * 30
 	databaseConfig.ConnConfig.ConnectTimeout = time.Second * 5
 
 	databaseConfig.BeforeAcquire = func(ctx context.Context, c *pgx.Conn) bool {

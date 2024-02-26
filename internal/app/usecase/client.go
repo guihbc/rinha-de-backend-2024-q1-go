@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app"
+	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/database"
 	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/database/repository"
 	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/http/model/request"
 	"github.com/guihbc/rinha-de-backend-2024-q1/internal/app/http/model/response"
@@ -11,13 +12,14 @@ import (
 )
 
 func credit(value int64, id, description string) (*response.ClientTransactionResponse, error) {
-	transaction, err := repository.CreditBalance(value, id)
+	conn := database.GetConn()
+	transaction, err := repository.CreditBalance(value, id, conn)
 
 	if err != nil {
 		return nil, errors.New("failed to credit in the database")
 	}
 
-	err = repository.InsertTransaction(id, description, app.CREDIT, value)
+	err = repository.InsertTransaction(id, description, app.CREDIT, value, conn)
 
 	if err != nil {
 		return nil, errors.New("failed to insert transaction")
@@ -27,7 +29,8 @@ func credit(value int64, id, description string) (*response.ClientTransactionRes
 }
 
 func debit(value int64, id, description string) (*response.ClientTransactionResponse, error) {
-	transaction, err := repository.DebitBalance(value, id)
+	conn := database.GetConn()
+	transaction, err := repository.DebitBalance(value, id, conn)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -37,7 +40,7 @@ func debit(value int64, id, description string) (*response.ClientTransactionResp
 		return nil, errors.New("failed to debit in the database")
 	}
 
-	err = repository.InsertTransaction(id, description, app.DEBIT, value)
+	err = repository.InsertTransaction(id, description, app.DEBIT, value, conn)
 
 	if err != nil {
 		return nil, errors.New("failed to insert transaction")
@@ -47,7 +50,8 @@ func debit(value int64, id, description string) (*response.ClientTransactionResp
 }
 
 func TransactionUseCase(id string, req request.ClientTransactionRequest) (*response.ClientTransactionResponse, error) {
-	clientExists, err := repository.ClientExists(id)
+	conn := database.GetConn()
+	clientExists, err := repository.ClientExists(id, conn)
 
 	if err != nil {
 		return nil, errors.New("failed to check if client exists")
@@ -69,7 +73,8 @@ func TransactionUseCase(id string, req request.ClientTransactionRequest) (*respo
 }
 
 func ClientExtractUseCase(id string) (*response.ClientExtractResponse, error) {
-	response, err := repository.ClientExtract(id)
+	conn := database.GetConn()
+	response, err := repository.ClientExtract(id, conn)
 
 	if err != nil {
 		return nil, errors.New("failed to get client transaction extract")

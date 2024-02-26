@@ -12,7 +12,7 @@ import (
 var conn *pgxpool.Pool
 
 func Connect() {
-	maxWaitTime := 20 * time.Second
+	maxWaitTime := 30 * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), maxWaitTime)
 	defer cancel()
 
