@@ -27,13 +27,16 @@ func ClientTrasactionController(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	log.Printf("receiving request [POST] /clientes/%s/transacoes", id)
+
 	var req request.ClientTransactionRequest
 	err = json.Unmarshal(ctx.Request.Body(), &req)
 
 	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		ctx.SetStatusCode(fasthttp.StatusUnprocessableEntity)
 		errorResponse := response.NewErrorResponse("Failed to parse request body")
 		log.Println(errorResponse.Message)
+		log.Println(string(ctx.Request.Body()[:]))
 		ctx.SetBody(response.GetBytes(errorResponse))
 		return
 	}
@@ -82,6 +85,8 @@ func ClientExtractController(ctx *fasthttp.RequestCtx) {
 		ctx.SetBody(response.GetBytes(errorResponse))
 		return
 	}
+
+	log.Printf("receiving request [GET] clientes/%s/extrato", id)
 
 	res, err := usecase.ClientExtractUseCase(id)
 
