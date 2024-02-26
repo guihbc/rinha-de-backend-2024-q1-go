@@ -16,8 +16,8 @@ func config() *pgxpool.Config {
 		log.Fatalln("Failed to parse pool config")
 	}
 
-	databaseConfig.MaxConns = int32(100)
-	databaseConfig.MinConns = int32(5)
+	databaseConfig.MaxConns = int32(156)
+	databaseConfig.MinConns = int32(10)
 	databaseConfig.MaxConnLifetime = time.Hour
 	databaseConfig.MaxConnIdleTime = time.Minute
 	databaseConfig.HealthCheckPeriod = time.Second * 30
